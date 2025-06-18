@@ -21,10 +21,10 @@ source .venv/bin/activate
 pip install --upgrade pip
 
 # # 安裝 Ansible 與其他輔助工具（requests: API 操作，joblib/tqdm: 並行與進度條）
-pip install ansible requests joblib tqdm
+pip install ansible #requests joblib tqdm
 
 # 啟用虛擬環境
-source .venv/bin/activate
+#source .venv/bin/activate
 
 echo "✅ Virtual environment and Ansible are ready."  # 提示環境準備完成
 
@@ -112,4 +112,6 @@ cd elasticsearch
 bash go.sh
 bash create_api_key.sh
 bash test_api_key.sh
+pip install requests joblib tqdm
+source .venv/bin/activate
 python import_dataset.py
