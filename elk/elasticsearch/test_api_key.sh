@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Set your API key here
 # 從 apikey.txt 讀取 API key
-if [ ! -f "./elasticsearch/apikey.txt" ]; then
+if [ ! -f "$(dirname "$0")/apikey.txt" ]; then
   echo "❌ apikey.txt 不存在，請先執行 create_api_key.sh"
   exit 1
 fi
