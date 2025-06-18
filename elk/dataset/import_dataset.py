@@ -14,7 +14,7 @@ warnings.simplefilter('ignore', InsecureRequestWarning)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set your Elasticsearch API key and URL
-with open("/elasticsearch/apikey.txt") as f:
+with open("./elasticsearch/apikey.txt") as f:
     key = f.read().strip()
 ES_APIKEY = os.getenv("ES_APIKEY", key)
 ES_URL = os.getenv("ES_URL", "https://localhost:9200")
