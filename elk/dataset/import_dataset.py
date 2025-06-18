@@ -14,7 +14,9 @@ warnings.simplefilter('ignore', InsecureRequestWarning)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Set your Elasticsearch API key and URL
-ES_APIKEY = os.getenv("ES_APIKEY", "Nk5ZOGM1Y0JkVjVWNTl1REo3RXk6Y3pyTXJsX3BSdTJweUpBYlBob0VSUQ==")
+with open("/tmp/apikey.txt") as f:
+    key = f.read().strip()
+ES_APIKEY = os.getenv("ES_APIKEY", key)
 ES_URL = os.getenv("ES_URL", "https://localhost:9200")
 INDEX_NAME = "iot-fishdata"
 CSV_FILE = "realfishdataset.csv"

@@ -41,4 +41,4 @@ if [ -z "$APIKEY" ] || [ "$APIKEY" == "null" ]; then
   exit 1
 fi
 
-echo "🌟 API Key created and encoded: $APIKEY"
+echo "$APIKEY" > /apikey.txt
