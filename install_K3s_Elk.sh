@@ -129,4 +129,15 @@ bash create_api_key.sh
 bash test_api_key.sh
 pip install requests joblib tqdm
 source .venv/bin/activate
-python import_dataset.py
+python import_dataset.py | tee import.log
+
+COUNT=$(grep -c "成功寫入" import.log)
+if [ "$COUNT" -ge 50 ]; then
+    echo "✅ 檢查到 $COUNT 筆資料已寫入 Elasticsearch，成功！"
+else
+    echo "❌ 寫入筆數不足，目前只有 $COUNT 筆"
+    exit 1
+fi
+
+kubectl get secret elasticsearch-master-credentials -o jsonpath="{.data.password}" | base64 --decode
+echo "✅ K3s 與 Elastic Stack 安裝完成！"
