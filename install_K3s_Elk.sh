@@ -132,7 +132,7 @@ bash create_api_key.sh
 bash test_api_key.sh
 pip install requests joblib tqdm
 #source .venv/bin/activate
-python import_dataset.py | tee import.log
+python ~/AQUA-CARE-2025-June-main/elk/dataset/import_dataset.py | tee import.log
 
 COUNT=$(grep -c "成功寫入" import.log)
 if [ "$COUNT" -ge 50 ]; then
