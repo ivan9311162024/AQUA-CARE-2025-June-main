@@ -30,8 +30,9 @@ echo "✅ Virtual environment and Ansible are ready."  # 提示環境準備完�
 
 ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.yaml  # 安裝 k3s
 
-source ~/.bashrc  # 重新載入 bash 設定檔
-k get po -A # 列出所有 Kubernetes Pod
+echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."
+source ~/.bashrc && k get po -A
+
 cd elk/
 
 # 安裝 Elastic Stack 的 Helm Charts
