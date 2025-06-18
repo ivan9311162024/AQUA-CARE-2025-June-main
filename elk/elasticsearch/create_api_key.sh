@@ -41,6 +41,6 @@ if [ -z "$APIKEY" ] || [ "$APIKEY" == "null" ]; then
   exit 1
 fi
 
-echo "$APIKEY" > ./elasticsearch/apikey.txt
+echo "$APIKEY" > "$(dirname "$0")/apikey.txt"
 
 

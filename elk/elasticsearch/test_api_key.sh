@@ -9,7 +9,7 @@ if [ ! -f "./elasticsearch/apikey.txt" ]; then
   exit 1
 fi
 
-ES_APIKEY=$(cat ./elasticsearch/apikey.txt)
+ES_APIKEY=$(cat "$(dirname "$0")/apikey.txt")
 ES_URL="https://localhost:9200"
 
 # Example: Query cluster health using API key
