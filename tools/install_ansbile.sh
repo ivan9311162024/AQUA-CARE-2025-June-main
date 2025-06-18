@@ -31,8 +31,26 @@ echo "✅ Virtual environment and Ansible are ready."  # 提示環境準備完�
 ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.yaml  # 安裝 k3s
 
 echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."
-source ~/.bashrc 
-kubectl  get po -A
+mkdir -p ~/.k3s
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.k3s/config
+sudo chown $USER:$USER ~/.k3s/config
+
+echo 'export KUBECONFIG=$HOME/.k3s/config' >> ~/.bashrc
+source ~/.bashrc
+
+# 等待所有 pod 都準備好（最多等 3 分鐘）
+echo "⏳ 等待所有 pods 啟動中..."
+kubectl wait --for=condition=Ready pod --all --all-namespaces --timeout=180s
+
+# 驗證是否真的沒有卡住的 pod
+NOT_READY=$(kubectl get pods -A | awk 'NR>1 {if ($4 != "Running" && $4 != "Completed") print $0}')
+
+if [ -z "$NOT_READY" ]; then
+    echo "✅ 所有 pods 已準備就緒！"
+else
+    echo "❌ 尚有未就緒 pods："
+    echo "$NOT_READY"
+fi
 
 
 cd elk/
