@@ -131,7 +131,7 @@ bash go.sh
 bash create_api_key.sh
 bash test_api_key.sh
 pip install requests joblib tqdm
-source .venv/bin/activate
+#source .venv/bin/activate
 python import_dataset.py | tee import.log
 
 COUNT=$(grep -c "成功寫入" import.log)
