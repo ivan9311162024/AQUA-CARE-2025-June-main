@@ -32,7 +32,7 @@ ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.
 
 echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."
 source ~/.bashrc 
-echo "$(k get po -A)"
+kubectl  get po -A
 
 
 cd elk/
