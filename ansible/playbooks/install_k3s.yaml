@@ -1,0 +1,77 @@
+---
+- name: Install k3s and configure kubeconfig
+  hosts: all            # 對所有 Ansible inventory 中的主機執行
+  become: yes           # 使用 sudo 權限執行指令
+  gather_facts: false   # 不收集系統資訊（加快速度）
+
+  tasks:
+    - name: Install k3s using official script
+      shell: curl -sfL https://get.k3s.io | sh -  # 使用官方腳本安裝 K3s
+      args:
+        creates: /usr/local/bin/k3s              # 若 k3s 已存在則跳過這步
+
+    - name: Ensure .k3s directory exists in home
+      become: false       # 用一般使用者權限執行
+      file:
+        path: "/home/ubuntu/.k3s"  # 建立用來放 kubeconfig 的目錄
+        state: directory  # 確保目錄存在
+        mode: '0755'  # 設定目錄權限，擁有者：可讀、可寫、可執行 | 群組：可讀、不可寫、可執行 | 其他人：可讀、不可寫、可執行
+
+    - name: Copy k3s.yaml to user's .k3s directory
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml            # 預設的 kubeconfig 位置
+        dest: "/home/ubuntu/.k3s/k3s.yaml"        # 複製到 ubuntu 使用者的資料夾
+        remote_src: yes   # 表示源檔案已經在遠端主機上
+        owner: "ubuntu"  # 設定檔案擁有者為 ubuntu 使用者
+        group: "ubuntu" # 設定檔案群組為 ubuntu 群組
+        mode: '0644'  # 設定檔案權限，擁有者：可讀、可寫 | 群組：可讀、不可寫 | 其他人：可讀、不可寫
+
+    - name: Set KUBECONFIG environment variable in .bashrc
+      lineinfile:
+        path: "/home/ubuntu/.bashrc"  # 修改 ubuntu 使用者的 .bashrc 檔案
+        line: 'export KUBECONFIG=$HOME/.k3s/k3s.yaml'  # 讓每次登入時自動使用正確的 kubeconfig
+        state: present  # 確保這行存在
+      become: no  # 不需要 sudo 權限，因為是修改使用者的 .bashrc
+
+    - name: Enable kubectl autocompletion in .bashrc
+      lineinfile:
+        path: "/home/ubuntu/.bashrc"  # 修改 ubuntu 使用者的 .bashrc 檔案
+        line: 'source <(kubectl completion bash)'      # 啟用 kubectl 指令補全功能
+        state: present  # 確保這行存在
+      become: no
+
+    - name: Add kubectl alias to .bashrc
+      lineinfile:
+        path: "/home/ubuntu/.bashrc"
+        line: 'alias k=kubectl'                        # 建立別名 k=kubectl，方便打指令
+        state: present
+      become: no
+
+    - name: Add kubectl completion for alias k to .bashrc
+      lineinfile:
+        path: "/home/ubuntu/.bashrc"
+        line: 'complete -F __start_kubectl k'          # 讓別名 k 也支援補全功能 | complete 是 Bash 的補全系統 | -F __start_kubectl：使用內建的 kubectl 補全邏輯
+        state: present
+      become: no
+
+    - name: Display all pods in all namespaces
+      shell: kubectl get pod -A                        # 顯示所有命名空間下的 pod 狀態
+      environment:
+        KUBECONFIG: "/home/ubuntu/.k3s/k3s.yaml"       # 手動指定 kubeconfig
+      register: pods_output                            # 儲存結果供除錯
+      changed_when: false                              # 此步驟不會導致系統狀態改變
+
+    - name: Install Helm using official script
+      shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash  # 使用官方腳本安裝 Helm
+      args:
+        creates: /usr/local/bin/helm                   # 若 helm 已存在則跳過
+
+    - name: Add elastic Helm repo
+      shell: helm repo add elastic https://helm.elastic.co   # 加入 Elastic (ELK) 的 Helm 倉庫
+      args:
+        creates: /home/ubuntu/.cache/helm/repository/elastic-index.yaml  # 避免重複加入
+      become: false
+
+    - name: Update Helm repos
+      shell: helm repo update                          # 更新 Helm 的 repo 索引
+      become: false
