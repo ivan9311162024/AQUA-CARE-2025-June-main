@@ -3,6 +3,9 @@ set -e  # 一旦遇到錯誤指令就終止腳本執行，避免後續錯誤連�
 
 bash tools/install_ansbile.sh  # 安裝 Ansible 與虛擬環境
 
+# 啟用虛擬環境
+source .venv/bin/activate
+
 ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.yaml  # 安裝 k3s
 
 echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."

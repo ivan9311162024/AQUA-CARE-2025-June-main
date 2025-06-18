@@ -24,7 +24,7 @@ pip install --upgrade pip
 pip install ansible #requests joblib tqdm
 
 # 啟用虛擬環境
-source .venv/bin/activate
+#source .venv/bin/activate
 
 echo "✅ Virtual environment and Ansible are ready."  # 提示環境準備完成
 
