@@ -95,9 +95,9 @@ sudo systemctl enable filebeat
 
 
 ES_PASS=$(kubectl get secret elasticsearch-master-credentials -o jsonpath="{.data.password}" | base64 --decode) # 取得 Elasticsearch 密碼並解碼存入變數
-sudo sed -i '25s|.*|id: ubuntu|' /etc/filebeat/filebeat.yml  # 修改 filebeat.yml 的 id 欄位（第 25 行）
-sudo sed -i '28s|.*|enabled: true|' /etc/filebeat/filebeat.yml # 啟用設定（第 28 行）
-sudo sed -i '171s|.*|protocol: "https"|' /etc/filebeat/filebeat.yml  # 修改 protocol（第 171 行）
+sudo sed -i '25s|.*|  id: ubuntu|' /etc/filebeat/filebeat.yml  # 修改 filebeat.yml 的 id 欄位（第 25 行）
+sudo sed -i '28s|.*|  enabled: true|' /etc/filebeat/filebeat.yml # 啟用設定（第 28 行）
+sudo sed -i '171s|.*|  protocol: "https"|' /etc/filebeat/filebeat.yml  # 修改 protocol（第 171 行）
 sudo sed -i '175s|.*|  username: "elastic"|' /etc/filebeat/filebeat.yml # 設定 username（第 175 行）
 sudo sed -i "176s|.*|  password: \"$ES_PASS\"|" /etc/filebeat/filebeat.yml  # 設定 password，注意：這裡用雙引號讓變數展開！
 # 在 protocol: "https" 下方插入 SSL 段
