@@ -50,28 +50,40 @@ export KUBECONFIG=$HOME/.k3s/config
 source ~/.bashrc
 
 # 等待所有 pod 都準備好（最多等 3 分鐘）
-echo "⏳ 等待所有 pods 啟動中..."
-kubectl wait --for=condition=Ready pod --all --all-namespaces --timeout=180s
+echo "⏳ 等待所有 Pod 進入 Ready 或 Completed 狀態..."
 
-# 驗證是否真的沒有卡住的 pod
-NOT_READY=$(kubectl get pods -A | awk 'NR>1 {if ($4 != "Running" && $4 != "Completed") print $0}')
+TIMEOUT=180  # 最多等待秒數
+SLEEP=5      # 每次間隔
+ELAPSED=0
 
-if [ -z "$NOT_READY" ]; then
-    echo "✅ 所有 pods 已準備就緒！"
-else
-    echo "❌ 尚有未就緒 pods："
+while true; do
+  NOT_READY=$(kubectl get pods -A | awk 'NR>1 && $4 != "Running" && $4 != "Completed"')
+  
+  if [ -z "$NOT_READY" ]; then
+    echo "✅ 所有 Pod 都 Ready 或 Completed。"
+    break
+  fi
+
+  if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+    echo "❌ 超過 $TIMEOUT 秒仍有未就緒的 Pod："
     echo "$NOT_READY"
-fi
+    exit 1
+  fi
+
+  sleep "$SLEEP"
+  ELAPSED=$((ELAPSED + SLEEP))
+done
+
 
 
 cd elk/
 
 # 安裝 Elastic Stack 的 Helm Charts
 helm search repo elastic
-helm install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml   
-helm install filebeat elastic/filebeat -f filebeat/values.yml
-helm install logstash elastic/logstash -f  logstash/values.yml
-helm install kibana elastic/kibana -f kibana/values.yml 
+helm upgrade --install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml   
+helm upgrade --install filebeat elastic/filebeat -f filebeat/values.yml
+helm upgrade --install logstash elastic/logstash -f  logstash/values.yml
+helm upgrade --install kibana elastic/kibana -f kibana/values.yml 
 helm list
 
 # 安裝 Filebeat
