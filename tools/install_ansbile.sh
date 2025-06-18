@@ -31,11 +31,22 @@ echo "✅ Virtual environment and Ansible are ready."  # 提示環境準備完�
 ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.yaml  # 安裝 k3s
 
 echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."
+# 安裝完 K3s 後，複製 kubeconfig 並設定權限
 mkdir -p ~/.k3s
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.k3s/config
 sudo chown $USER:$USER ~/.k3s/config
 
-echo 'export KUBECONFIG=$HOME/.k3s/config' >> ~/.bashrc
+# 永久設定（只寫一次進 .bashrc）
+grep -q 'export KUBECONFIG=$HOME/.k3s/config' ~/.bashrc || echo 'export KUBECONFIG=$HOME/.k3s/config' >> ~/.bashrc
+
+if [ ! -f "$HOME/.k3s/config" ]; then
+  echo "❌ 找不到 $HOME/.k3s/config，請檢查 K3s 是否成功安裝"
+  exit 1
+fi
+
+# 立即生效
+export KUBECONFIG=$HOME/.k3s/config
+
 source ~/.bashrc
 
 # 等待所有 pod 都準備好（最多等 3 分鐘）
@@ -77,7 +88,9 @@ sudo sed -i '28s|.*|enabled: true|' /etc/filebeat/filebeat.yml # 啟用設定（
 sudo sed -i '171s|.*|protocol: "https"|' /etc/filebeat/filebeat.yml  # 修改 protocol（第 171 行）
 sudo sed -i '175s|.*|  username: "elastic"|' /etc/filebeat/filebeat.yml # 設定 username（第 175 行）
 sudo sed -i "176s|.*|  password: \"$ES_PASS\"|" /etc/filebeat/filebeat.yml  # 設定 password，注意：這裡用雙引號讓變數展開！
-sudo sed -i '172a\  ssl:\n    verification_mode: "none"' /etc/filebeat/filebeat.yml # 在第 30 行後插入 ssl 段（兩行），注意要有正確縮排
+# 在 protocol: "https" 下方插入 SSL 段
+sudo sed -i '/protocol: "https"/a\  ssl:\n    verification_mode: "none"' /etc/filebeat/filebeat.yml
+
 
 sudo filebeat test config # 測試 Filebeat 配置是否正確
 sudo filebeat test output # 測試輸出是否正確
