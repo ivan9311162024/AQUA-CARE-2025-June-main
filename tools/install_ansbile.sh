@@ -80,10 +80,50 @@ cd elk/
 
 # 安裝 Elastic Stack 的 Helm Charts
 helm search repo elastic
-helm upgrade --install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml   
+# 安裝 Elastic Stack 的 Helm Charts（每個安裝後等待 Ready 或 Completed）
+
+# 函數：等待指定 label 的 pod Ready 或 Completed
+wait_for_pod_ready() {
+  local label="$1"
+  local timeout=180
+  local sleep_time=5
+  local elapsed=0
+
+  echo "⏳ 等待 Pod ($label) Ready 或 Completed 中..."
+
+  while true; do
+    NOT_READY=$(kubectl get pods -A -l "$label" 2>/dev/null | awk 'NR>1 && $4 != "Running" && $4 != "Completed"')
+    if [ -z "$NOT_READY" ]; then
+      echo "✅ [$label] 所有 Pod 就緒！"
+      break
+    fi
+
+    if [ "$elapsed" -ge "$timeout" ]; then
+      echo "❌ [$label] 超過 $timeout 秒仍有未就緒 Pod："
+      echo "$NOT_READY"
+      exit 1
+    fi
+
+    sleep "$sleep_time"
+    elapsed=$((elapsed + sleep_time))
+  done
+}
+
+# 安裝 elasticsearch 並等待
+helm upgrade --install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml
+wait_for_pod_ready "app=elasticsearch-master"
+
+# 安裝 filebeat 並等待
 helm upgrade --install filebeat elastic/filebeat -f filebeat/values.yml
-helm upgrade --install logstash elastic/logstash -f  logstash/values.yml
-helm upgrade --install kibana elastic/kibana -f kibana/values.yml 
+wait_for_pod_ready "app=filebeat-filebeat"
+
+# 安裝 logstash 並等待
+helm upgrade --install logstash elastic/logstash -f logstash/values.yml
+wait_for_pod_ready "app=logstash-logstash"
+
+# 安裝 kibana 並等待
+helm upgrade --install kibana elastic/kibana -f kibana/values.yml
+wait_for_pod_ready "app=kibana"
 helm list
 
 # 安裝 Filebeat
