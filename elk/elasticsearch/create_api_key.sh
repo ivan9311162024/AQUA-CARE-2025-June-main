@@ -41,5 +41,5 @@ if [ -z "$APIKEY" ] || [ "$APIKEY" == "null" ]; then
   exit 1
 fi
 
-echo "$API_KEY" > "./apikey.txt"
+echo "$APIKEY" > "./apikey.txt"
 
