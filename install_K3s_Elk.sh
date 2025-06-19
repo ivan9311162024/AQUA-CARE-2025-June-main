@@ -10,7 +10,7 @@ source .venv/bin/activate
 
 ansible-playbook -i ansible/inventories/hosts.ini ansible/playbooks/install_k3s.yaml  # 安裝 k3s
 
-echo "✅ 已設定 KUBECONFIG 與 kubectl alias，開始測試 k 指令..."
+echo "✅ 已設定 KUBECONFIG 與 kubectl alias"
 # 安裝完 K3s 後，複製 kubeconfig 並設定權限
 mkdir -p ~/.k3s
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.k3s/config
