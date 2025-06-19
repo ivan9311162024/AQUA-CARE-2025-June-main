@@ -102,7 +102,7 @@ helm upgrade --install logstash elastic/logstash -f logstash/values.yml --timeou
 wait_for_pod_ready "app=logstash-logstash"
 
 # 安裝 kibana 並等待
-helm upgrade --install kibana elastic/kibana -f kibana/values.yml --timeout 600s
+helm upgrade --install kibana elastic/kibana -f kibana/values.yml --timeout 600s --force
 wait_for_pod_ready "app=kibana"
 helm list
 
