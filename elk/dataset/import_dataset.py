@@ -19,7 +19,7 @@ with open("../elasticsearch/apikey.txt") as f:
 ES_APIKEY = os.getenv("ES_APIKEY", key)
 ES_URL = os.getenv("ES_URL", "https://localhost:9200")
 INDEX_NAME = "iot-fishdata"
-CSV_FILE = "./elk/dataset/realfishdataset.csv"
+CSV_FILE = "/home/ubuntu/AQUA-CARE-2025-June-main/elk/dataset/realfishdataset.csv"
 
 headers = {
     "Authorization": f"ApiKey {ES_APIKEY}",
