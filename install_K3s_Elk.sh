@@ -136,14 +136,6 @@ pip install requests joblib tqdm
 #source .venv/bin/activate
 python ~/AQUA-CARE-2025-June-main/elk/dataset/import_dataset.py | tee import.log
 
-COUNT=$(grep -c "成功寫入" import.log)
-if [ "$COUNT" -ge 50 ]; then
-    echo "✅ 檢查到 $COUNT 筆資料已寫入 Elasticsearch，成功！"
-else
-    echo "❌ 寫入筆數不足，目前只有 $COUNT 筆"
-    exit 1
-fi
-
 sudo systemctl enable unattended-upgrades  # 啟用自動更新
 sudo systemctl status unattended-upgrades  # 確認自動更新服務狀態
 

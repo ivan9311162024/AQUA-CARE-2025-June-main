@@ -44,7 +44,11 @@ def create_index():
 def import_csv_to_es():
     with open(CSV_FILE, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
+        count = 0  # 用來計算匯入的資料筆數  ✅
         for row in reader:
+            if count >= 50: # Limit to 50 rows for testing ✅
+                break
+
             # Convert numeric fields
             doc = {
                 "ph": float(row["ph"]),
@@ -65,6 +69,8 @@ def import_csv_to_es():
             resp = results[0]
             if resp.status_code not in (200, 201):
                 print(f"Failed to insert: {doc}, Response: {resp.status_code}, {resp.text}")
+            
+            count += 1    #✅
 
 def main():
     create_index()
