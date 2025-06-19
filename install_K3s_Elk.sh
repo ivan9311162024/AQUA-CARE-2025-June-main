@@ -81,7 +81,7 @@ wait_for_pod_ready() {
     if [ "$elapsed" -ge "$timeout" ]; then
       echo "❌ [$label] 超過 $timeout 秒仍有未就緒 Pod："
       echo "$NOT_READY"
-      
+
       # 超過 timeout 時，強制刪除 Pod 並重新部署
       echo "🚀 正在重新部署 Pod..."
       kubectl delete pod -l "$label" -n default  # 刪除所有符合標籤的 Pod
@@ -149,5 +149,5 @@ sudo systemctl enable unattended-upgrades  # 啟用自動更新
 sudo systemctl status unattended-upgrades  # 確認自動更新服務狀態
 
 
-kubectl get secret elasticsearch-master-credentials -o jsonpath="{.data.password}" | base64 --decode
+echo "$ES_PASS"
 echo "✅ K3s 與 Elastic Stack 安裝完成！"
