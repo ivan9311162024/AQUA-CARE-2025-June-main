@@ -65,7 +65,7 @@ helm search repo elastic
 # 函數：等待指定 label 的 pod Ready 或 Completed
 wait_for_pod_ready() {
   local label="$1"
-  local timeout=180
+  local timeout=600
   local sleep_time=5
   local elapsed=0
 
@@ -90,19 +90,19 @@ wait_for_pod_ready() {
 }
 
 # 安裝 elasticsearch 並等待
-helm upgrade --install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml
+helm upgrade --install elasticsearch elastic/elasticsearch -f elasticsearch/values.yml --timeout 600s
 wait_for_pod_ready "app=elasticsearch-master"
 
 # 安裝 filebeat 並等待
-helm upgrade --install filebeat elastic/filebeat -f filebeat/values.yml
+helm upgrade --install filebeat elastic/filebeat -f filebeat/values.yml --timeout 600s
 wait_for_pod_ready "app=filebeat-filebeat"
 
 # 安裝 logstash 並等待
-helm upgrade --install logstash elastic/logstash -f logstash/values.yml
+helm upgrade --install logstash elastic/logstash -f logstash/values.yml --timeout 600s
 wait_for_pod_ready "app=logstash-logstash"
 
 # 安裝 kibana 並等待
-helm upgrade --install kibana elastic/kibana -f kibana/values.yml
+helm upgrade --install kibana elastic/kibana -f kibana/values.yml --timeout 600s
 wait_for_pod_ready "app=kibana"
 helm list
 
