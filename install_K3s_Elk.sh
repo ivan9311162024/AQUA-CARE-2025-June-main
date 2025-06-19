@@ -81,7 +81,16 @@ wait_for_pod_ready() {
     if [ "$elapsed" -ge "$timeout" ]; then
       echo "❌ [$label] 超過 $timeout 秒仍有未就緒 Pod："
       echo "$NOT_READY"
-      exit 1
+      
+      # 超過 timeout 時，強制刪除 Pod 並重新部署
+      echo "🚀 正在重新部署 Pod..."
+      kubectl delete pod -l "$label" -n default  # 刪除所有符合標籤的 Pod
+      sleep 10  # 等待 10 秒鐘，讓 Kubernetes 重新部署 Pod
+
+      # 重新檢查 Pod 的狀態
+      echo "⏳ 等待重新部署的 Pod ..."
+      elapsed=0  # 重置計時器
+      continue  # 重新進行等待檢查
     fi
 
     sleep "$sleep_time"
