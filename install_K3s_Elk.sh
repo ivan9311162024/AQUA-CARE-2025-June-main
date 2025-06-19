@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e  # 一旦遇到錯誤指令就終止腳本執行，避免後續錯誤連鎖發生
 
+sudo systemctl disable unattended-upgrades  # 停用自動更新，避免在安裝過程中出現意外更新導致問題
+
 bash tools/install_ansbile.sh  # 安裝 Ansible 與虛擬環境
 
 # 啟用虛擬環境
@@ -141,6 +143,10 @@ else
     echo "❌ 寫入筆數不足，目前只有 $COUNT 筆"
     exit 1
 fi
+
+sudo systemctl enable unattended-upgrades  # 啟用自動更新
+sudo systemctl status unattended-upgrades  # 確認自動更新服務狀態
+
 
 kubectl get secret elasticsearch-master-credentials -o jsonpath="{.data.password}" | base64 --decode
 echo "✅ K3s 與 Elastic Stack 安裝完成！"
